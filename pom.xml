@@ -28,6 +28,18 @@
 			<version>${netty.version}</version>
 		</dependency>
 
+		<dependency>
+			<groupId>com.twitter</groupId>
+			<artifactId>hpack</artifactId>
+			<version>0.10.1</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>3.3.2</version>
+		</dependency>
+
 		<!-- Test -->
 		<dependency>
 			<groupId>junit</groupId>
@@ -51,5 +63,5 @@
 		</dependency>
 
 	</dependencies>
-	
+
 </project>

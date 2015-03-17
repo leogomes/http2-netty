@@ -14,12 +14,17 @@ import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpHeaderUtil;
 import io.netty.handler.codec.http.HttpRequest;
 
+/**
+ * Handles the exceptional case where HTTP 1.x was negotiated under TLS
+ * 
+ * @author Leonardo Gomes <http://leogomes.fr>
+ */
 public class TilesHttp1Handler extends SimpleChannelInboundHandler<HttpRequest> {
 
   private static final String response = "<html><body>"
       + "<h2>To view the example you need a browser that supports HTTP/2</h2>"
       + "<p>Try with Chrome 40+ or Firefox 36+</p>"
-      + "<hr><a href='/'>&lt;&lt leogomes.fr</a></body></html>";
+      + Html.FOOTER;
 
   @Override
   protected void channelRead0(ChannelHandlerContext ctx, HttpRequest req) throws Exception {

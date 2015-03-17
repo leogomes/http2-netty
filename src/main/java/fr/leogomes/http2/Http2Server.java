@@ -30,7 +30,6 @@ import io.netty.handler.ssl.util.SelfSignedCertificate;
  * simulate latency.
  * 
  * @author Leonardo Gomes <http://leogomes.fr>
- *
  */
 public class Http2Server {
 
@@ -56,7 +55,8 @@ public class Http2Server {
        .childHandler(new ChannelInitializer<SocketChannel>() {
             @Override
             protected void initChannel(SocketChannel ch) throws Exception {
-              ch.pipeline().addLast(sslCtx.newHandler(ch.alloc()), new Http2OrHttpHandler(MAX_CONTENT_LENGTH));
+              ch.pipeline()
+                .addLast(sslCtx.newHandler(ch.alloc()), new Http2OrHttpHandler(MAX_CONTENT_LENGTH));
             }
           });
 
@@ -67,6 +67,14 @@ public class Http2Server {
     } finally {
       bossGroup.shutdownGracefully();
       workerGroup.shutdownGracefully();
+    }
+  }
+  
+  public static void main(String[] args) {
+    try {
+      new Http2Server().start();
+    } catch (Exception e) {
+      e.printStackTrace();
     }
   }
 
