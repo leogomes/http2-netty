@@ -9,6 +9,7 @@ import io.netty.handler.codec.http2.Http2ConnectionHandler;
 import io.netty.handler.codec.http2.Http2InboundFrameLogger;
 import io.netty.handler.codec.http2.Http2OrHttpChooser;
 import io.netty.handler.codec.http2.Http2OutboundFrameLogger;
+import io.netty.handler.codec.http2.HttpToHttp2ConnectionHandler;
 import io.netty.handler.codec.http2.InboundHttp2ToHttpAdapter;
 
 import javax.net.ssl.SSLEngine;
@@ -20,8 +21,6 @@ import javax.net.ssl.SSLEngine;
  * @author Leonardo Gomes <http://leogomes.fr>
  */
 public class Http2OrHttpHandler extends Http2OrHttpChooser {
-
-  private DefaultHttp2Connection connection;
 
   protected Http2OrHttpHandler(int maxHttpContentLength) {
     super(maxHttpContentLength);
@@ -40,9 +39,19 @@ public class Http2OrHttpHandler extends Http2OrHttpChooser {
 
   @Override
   protected void addHttp2Handlers(ChannelHandlerContext ctx) {
-    super.addHttp2Handlers(ctx);
-    // ctx.pipeline().addLast("http2ToHttp", new
-    // HttpToHttp2ConnectionHandler());
+    DefaultHttp2Connection connection = new DefaultHttp2Connection(true);
+    DefaultHttp2FrameWriter writer = new DefaultHttp2FrameWriter();
+    DefaultHttp2FrameReader reader = new DefaultHttp2FrameReader();
+    InboundHttp2ToHttpAdapter listener = new InboundHttp2ToHttpAdapter.Builder(connection)
+    .propagateSettings(true)
+    .validateHttpHeaders(false)
+    .maxContentLength(1024 * 100)
+    .build();
+    
+    //ctx.pipeline().addLast("http2toHttp", new TilesHttp2ToHttpHandler(connection, reader, writer, listener));
+    ctx.pipeline().addLast("httpToHttp2", new HttpToHttp2ConnectionHandler(connection, 
+        new Http2InboundFrameLogger(reader, TilesHttp2ToHttpHandler.logger), 
+        new Http2OutboundFrameLogger(writer, TilesHttp2ToHttpHandler.logger), listener));
     ctx.pipeline().addLast("fullHttpRequestHandler", new FullHttpMessageHandler());
   }
 
@@ -53,9 +62,7 @@ public class Http2OrHttpHandler extends Http2OrHttpChooser {
 
   @Override
   protected Http2ConnectionHandler createHttp2RequestHandler() {
-    connection = new DefaultHttp2Connection(true);
-    // FIXME Make maxHttpContentLength visible
-    return new TilesHttp2ToHttpHandler(connection, 1024 * 100);
+    return null; //NOOP
   }
 
 }

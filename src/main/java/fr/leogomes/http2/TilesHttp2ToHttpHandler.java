@@ -18,17 +18,14 @@ import io.netty.util.internal.logging.InternalLoggerFactory;
  */
 public class TilesHttp2ToHttpHandler extends Http2ConnectionHandler {
 
-  private static final Http2FrameLogger logger = new Http2FrameLogger(INFO,
+  static final Http2FrameLogger logger = new Http2FrameLogger(INFO,
       InternalLoggerFactory.getInstance(TilesHttp2ToHttpHandler.class));
 
-  public TilesHttp2ToHttpHandler(Http2Connection connection, int maxContentLength) {
+  public TilesHttp2ToHttpHandler(Http2Connection connection, DefaultHttp2FrameReader reader, 
+      DefaultHttp2FrameWriter writer,InboundHttp2ToHttpAdapter listener) {
     super(connection,
-        new Http2InboundFrameLogger(new DefaultHttp2FrameReader(), logger),
-        new Http2OutboundFrameLogger(new DefaultHttp2FrameWriter(), logger), 
-        new InboundHttp2ToHttpAdapter.Builder(connection)
-                                     .propagateSettings(true)
-                                     .validateHttpHeaders(false)
-                                     .maxContentLength(maxContentLength)
-                                     .build());
+        new Http2InboundFrameLogger(reader, logger),
+        new Http2OutboundFrameLogger(writer, logger), 
+        listener);
   }
 }

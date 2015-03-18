@@ -4,9 +4,9 @@ import java.util.Random;
 
 public class Html {
   
-  static final String HEADER = header("leogomes.fr/http2");
+  static final byte[] HEADER = header("leogomes.fr/http2").getBytes();
   
-  static final String FOOTER =  "<hr><a href='http://leogomes.fr'>&lt;&lt leogomes.fr</a></body></html>"; 
+  static final byte[] FOOTER =  "<hr><a href='http://leogomes.fr'>&lt;&lt leogomes.fr</a></body></html>".getBytes(); 
     
   private static String header(String url) {
     return "<html><head lang=\"en\"><title>Netty HTTP/2 Example</title>"
@@ -18,21 +18,21 @@ public class Html {
         "[<a href='https://"+ url + "?latency=1000'>HTTP/2, 1s latency</a>] [<a href='http://" + url + "?latency=1000'>HTTP/1, 1s latency</a>]<br>";
   }
   
-  private static String body(String latency) {
+  public static byte[] body(int latency) {
     StringBuilder sb = new StringBuilder("<p>");
-    double r = new Random().nextDouble();
+    int r = Math.abs(new Random().nextInt());
 
     for (int y = 0; y < 20; y++) {
       for (int x = 0; x < 10; x++) {
         sb.append("<img width=29 height=30 src='/http2?x=").append(x)
           .append("&y=").append(y)
           .append("&cachebust=").append(r)
-          .append("&latency=").append(latency);
+          .append("&latency=").append(latency).append("'>");
       }
-      sb.append("<br/>");
+      sb.append("<br/>\r\n");
     }
     
     sb.append("</p>");
-    return sb.toString();
+    return sb.toString().getBytes();
   }
 }
