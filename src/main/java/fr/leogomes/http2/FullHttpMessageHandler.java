@@ -35,6 +35,8 @@ import java.util.Map;
 
 import javax.activation.MimetypesFileTypeMap;
 
+import org.apache.commons.io.FileUtils;
+
 public class FullHttpMessageHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
 
   private static final String Y = "y";
@@ -74,40 +76,19 @@ public class FullHttpMessageHandler extends SimpleChannelInboundHandler<FullHttp
 
   private void handleImage(Map<String, List<String>> params, ChannelHandlerContext ctx, String streamId, int latency) {
     int x = toInt(params.get(X).get(0), 0);
-    int y = toInt(params.get(X).get(0), 0);
+    int y = toInt(params.get(Y).get(0), 0);
 
     try {
-      File file = new File(getClass().getResource("tile-" + x + "-" + y + ".jpeg").toURI());
-      RandomAccessFile raf = new RandomAccessFile(file, "r");
-      HttpResponse response = new DefaultHttpResponse(HTTP_1_1, OK);
+      File file = new File(getClass().getResource("tile-" + y + "-" + x + ".jpeg").toURI());
+      byte[] fileBytes = FileUtils.readFileToByteArray(file);
+      FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, OK, Unpooled.wrappedBuffer(fileBytes));
       response.headers().set(CONTENT_TYPE, "image/jpeg");
-      long fileLength = raf.length();
-      HttpHeaderUtil.setContentLength(response, fileLength);
+      HttpHeaderUtil.setContentLength(response, fileBytes.length);
       response.headers().set(HttpUtil.ExtensionHeaderNames.STREAM_ID.text(), streamId);
 
       // Write the initial line and the header.
-      ctx.write(response);
+      ctx.writeAndFlush(response);
 
-      // Write the content.
-      ChannelFuture sendFileFuture = ctx.write(new HttpChunkedInput(new ChunkedFile(raf, 0, fileLength, 8192)),
-          ctx.newProgressivePromise());
-
-      sendFileFuture.addListener(new ChannelProgressiveFutureListener() {
-        @Override
-        public void operationProgressed(ChannelProgressiveFuture future, long progress, long total) {
-          if (total < 0) { // total unknown
-            System.err.println(future.channel() + " Transfer progress: " + progress);
-          } else {
-            System.err.println(future.channel() + " Transfer progress: " + progress + " / " + total);
-          }
-        }
-
-        @Override
-        public void operationComplete(ChannelProgressiveFuture future) {
-          System.err.println(future.channel() + " Transfer complete.");
-          ctx.flush();
-        }
-      });
 
     } catch (URISyntaxException | IOException e) {
       // TODO Auto-generated catch block
