@@ -3,10 +3,14 @@ package fr.leogomes.http2;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.nio.file.FileSystems;
+import java.nio.file.Paths;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.commons.io.FileSystemUtils;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 
 /**
  * Caches the images to avoid reading them every time from the disk. This is
@@ -44,10 +48,9 @@ public class ImageCache {
       for (int x = 0; x < 20; x++) {
         try {
           String name = name(x, y);
-          File file = new File(getClass().getResource(name).toURI());
-          byte[] fileBytes = FileUtils.readFileToByteArray(file);
+          byte[] fileBytes = IOUtils.toByteArray(getClass().getResourceAsStream(name));
           imageBank.put(name, fileBytes);
-        } catch (URISyntaxException | IOException e) {
+        } catch (IOException e) {
           e.printStackTrace();
         }
       }

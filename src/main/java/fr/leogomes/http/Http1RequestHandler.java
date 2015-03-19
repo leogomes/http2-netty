@@ -12,7 +12,7 @@ import fr.leogomes.http2.Http2RequestHandler;
  * just extends the {@link Http2RequestHandler} overriding the streamId related
  * operations to do nothing, since streams don't exist in HTTP 1.x. The
  * remaining logic is the same between Http 1.x and 2. Since the aim of this
- * example is demonstrate Http2 I will keep the logic there, instead of trying
+ * example is demonstrate Http2, I will keep the logic there, instead of trying
  * to move it to an abstract common class.
  * 
  * @author Leonardo Gomes <http://leogomes.fr>
