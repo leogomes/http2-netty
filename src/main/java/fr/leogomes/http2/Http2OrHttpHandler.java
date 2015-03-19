@@ -6,9 +6,7 @@ import io.netty.handler.codec.http2.DefaultHttp2Connection;
 import io.netty.handler.codec.http2.DefaultHttp2FrameReader;
 import io.netty.handler.codec.http2.DefaultHttp2FrameWriter;
 import io.netty.handler.codec.http2.Http2ConnectionHandler;
-import io.netty.handler.codec.http2.Http2InboundFrameLogger;
 import io.netty.handler.codec.http2.Http2OrHttpChooser;
-import io.netty.handler.codec.http2.Http2OutboundFrameLogger;
 import io.netty.handler.codec.http2.HttpToHttp2ConnectionHandler;
 import io.netty.handler.codec.http2.InboundHttp2ToHttpAdapter;
 
@@ -31,7 +29,7 @@ public class Http2OrHttpHandler extends Http2OrHttpChooser {
     String[] protocol = engine.getSession().getProtocol().split(":");
     if (protocol != null && protocol.length > 1) {
       SelectedProtocol selectedProtocol = SelectedProtocol.protocol(protocol[1]);
-      System.err.println("Selected Protocol is " + selectedProtocol);
+      //System.err.println("Selected Protocol is " + selectedProtocol);
       return selectedProtocol;
     }
     return SelectedProtocol.UNKNOWN;
@@ -42,27 +40,25 @@ public class Http2OrHttpHandler extends Http2OrHttpChooser {
     DefaultHttp2Connection connection = new DefaultHttp2Connection(true);
     DefaultHttp2FrameWriter writer = new DefaultHttp2FrameWriter();
     DefaultHttp2FrameReader reader = new DefaultHttp2FrameReader();
-    InboundHttp2ToHttpAdapter listener = new InboundHttp2ToHttpAdapter.Builder(connection)
-    .propagateSettings(true)
-    .validateHttpHeaders(false)
-    .maxContentLength(1024 * 100)
-    .build();
-    
-    //ctx.pipeline().addLast("http2toHttp", new TilesHttp2ToHttpHandler(connection, reader, writer, listener));
-    ctx.pipeline().addLast("httpToHttp2", new HttpToHttp2ConnectionHandler(connection, 
-        new Http2InboundFrameLogger(reader, TilesHttp2ToHttpHandler.logger), 
-        new Http2OutboundFrameLogger(writer, TilesHttp2ToHttpHandler.logger), listener));
-    ctx.pipeline().addLast("fullHttpRequestHandler", new FullHttpMessageHandler());
+    InboundHttp2ToHttpAdapter listener = new InboundHttp2ToHttpAdapter.Builder(connection).propagateSettings(true)
+        .validateHttpHeaders(false).maxContentLength(1024 * 100).build();
+
+    ctx.pipeline().addLast("httpToHttp2", new HttpToHttp2ConnectionHandler(connection,
+    // Loggers can be activated for debugging purposes
+    // new Http2InboundFrameLogger(reader, TilesHttp2ToHttpHandler.logger),
+    // new Http2OutboundFrameLogger(writer, TilesHttp2ToHttpHandler.logger)
+        reader, writer, listener));
+    ctx.pipeline().addLast("fullHttpRequestHandler", new Http2RequestHandler());
   }
 
   @Override
   protected ChannelHandler createHttp1RequestHandler() {
-    return new TilesHttp1Handler();
+    return new FallbackRequestHandler();
   }
 
   @Override
   protected Http2ConnectionHandler createHttp2RequestHandler() {
-    return null; //NOOP
+    return null; // NOOP
   }
 
 }

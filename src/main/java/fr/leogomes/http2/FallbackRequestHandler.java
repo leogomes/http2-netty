@@ -19,7 +19,7 @@ import io.netty.handler.codec.http.HttpRequest;
  * 
  * @author Leonardo Gomes <http://leogomes.fr>
  */
-public class TilesHttp1Handler extends SimpleChannelInboundHandler<HttpRequest> {
+public class FallbackRequestHandler extends SimpleChannelInboundHandler<HttpRequest> {
 
   private static final String response = "<html><body>"
       + "<h2>To view the example you need a browser that supports HTTP/2</h2>"
