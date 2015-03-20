@@ -8,14 +8,14 @@ It shows the loading of an image composed by 200 tiles using both HTTP/2 and HTT
 
 To run the example you will need
 - Java 8
-- Jetty ALPN library
+- ALPN boot library
 - HTTP/2-powered browser (preferably Chrome 40+)
 - A patched version of Netty 4.1, if your browser doesn't support HTTP/2 Draft 16 yet.
 
-The ALPN library must match the version of your JDK (I'm using 1.8.0_25). Check out [the documentation](http://eclipse.org/jetty/documentation/current/alpn-chapter.html#alpn-versions) to know which version you should use.
+The ALPN library must match the version of your JDK. I'm using `1.8.0_25`, in the example below. Check out [the documentation](http://eclipse.org/jetty/documentation/current/alpn-chapter.html#alpn-versions) to know which version of ALPN boot you should use to match your installed JDK.
 The jars can be obtained from your local maven repository, or [downloaded here](http://mvnrepository.com/artifact/org.mortbay.jetty.alpn/alpn-boot).
 
-Since Netty currently supports draft 16 of the HTTP/2 and both Chrome and Firefox are still on Draft 14, you will need to tweak Netty 
+Since Netty currently supports draft 16 of the HTTP/2 and both Chrome and Firefox are still on Draft 14, you will need to hack Netty
 to use draft 14. I simply [changed the version constant on `Http2CodecUtil`](https://github.com/netty/netty/blob/f691ae558cb2305a6c55aae3eb11e9f7a29b754e/codec-http2/src/main/java/io/netty/handler/codec/http2/Http2CodecUtil.java),
 from `h2-16` to `h2-14`, and built Netty 4.1 locally.
 
@@ -27,6 +27,5 @@ $ mvn clean install -Prelease
 and launch it making sure to set the correct path to the ALPN jar:
 
 ```
-java -server -Xbootclasspath/p:/alpn-boot-8.1.2.v20141202.jar -Dhttp-port=8080 -Dhttp2-port=8443 -jar target/http2-netty.jar
+java -server -Xbootclasspath/p:lib/alpn-boot-8.1.2.v20141202.jar -Dhttp-port=8080 -Dhttp2-port=8443 -jar target/http2-netty.jar
 ```
-

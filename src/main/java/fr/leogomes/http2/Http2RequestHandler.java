@@ -50,6 +50,7 @@ public class Http2RequestHandler extends SimpleChannelInboundHandler<FullHttpReq
     // Check arguments: path must match and latency parameter must be present
     if (!PATH.equals(queryString.path()) || missing(queryString, LATENCY)) {
       sendDummy(ctx, streamId);
+      return;
     }
 
     int latency = latency(queryString);
