@@ -10,7 +10,7 @@ To run the example you will need
 - Java 8
 - Jetty ALPN library
 - HTTP/2-powered browser (preferably Chrome 40+)
-- A patched version of Netty 4.1, if your browser don't support HTTP/2 Draft 16 yet.
+- A patched version of Netty 4.1, if your browser doesn't support HTTP/2 Draft 16 yet.
 
 The ALPN library must match the version of your JDK (I'm using 1.8.0_25). Check out [the documentation](http://eclipse.org/jetty/documentation/current/alpn-chapter.html#alpn-versions) to know which version you should use.
 The jars can be obtained from your local maven repository, or [downloaded here](http://mvnrepository.com/artifact/org.mortbay.jetty.alpn/alpn-boot).
