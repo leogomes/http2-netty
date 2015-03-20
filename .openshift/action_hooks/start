@@ -1,0 +1,13 @@
+#!/bin/bash
+# The logic to start up your application should be put in this
+# script. The application will work only if it binds to
+# $OPENSHIFT_DIY_IP:8080
+set -x
+
+
+export M2=$OPENSHIFT_DATA_DIR/apache-maven-3.2.2/bin
+export JAVA_HOME=$OPENSHIFT_DATA_DIR/jdk1.8.0_20
+export PATH=$JAVA_HOME/bin:$M2:$PATH
+
+cd $OPENSHIFT_REPO_DIR
+nohup java -server -Xbootclasspath/p:$OPENSHIFT_DATA_DIR/alpn-boot-8.1.0.v20141016.jar -jar target/http2-netty.jar -Dhttp-port=$OPENSHIFT_DIY_PORT -Dhttp2-port=8443 > ${OPENSHIFT_DIY_LOG_DIR}/http-netty.log 2>&1 &
