@@ -1,6 +1,9 @@
-package fr.leogomes.http2;
+package fr.leogomes;
 
 import java.util.Random;
+
+import fr.leogomes.http.HttpServer;
+import fr.leogomes.http2.Http2Server;
 
 /**
  * Just a bunch of hard-coded and dynamically generated HTML.
@@ -9,24 +12,26 @@ import java.util.Random;
  */
 public class Html {
 
-  static final byte[] HEADER = header("127.0.0.1/http2").getBytes();
+  public static final String IP = System.getProperty("ip", "127.0.0.1");
 
   static final String FORK_ME = "<a href=\"https://github.com/leogomes/http2-netty\"><img style=\"position: absolute; top: 0; right: 0; border: 0;\" src=\"https://camo.githubusercontent.com/a6677b08c955af8400f44c6298f40e7d19cc5b2d/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f677261795f3664366436642e706e67\" alt=\"Fork me on GitHub\" data-canonical-src=\"https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png\"></a>";
 
-  static final byte[] FOOTER = ("<hr><a href='http://leogomes.fr'>&lt;&lt leogomes.fr</a>" + FORK_ME + "</body></html>")
+  public static final byte[] FOOTER = ("<hr><a href='http://leogomes.fr'>&lt;&lt leogomes.fr</a>" + FORK_ME + "</body></html>")
       .getBytes();
 
-  private static String header(String url) {
-    return "<html><head lang=\"en\"><title>Netty HTTP/2 Example</title>"
+  public static final byte[] HEADER = ("<html><head lang=\"en\"><title>Netty HTTP/2 Example</title>"
         + "<style>body {background:#DDD;}</style></head>" + "<body>A grid of 200 tiled images is shown below. Compare:"
-        + "<p>[<a href='https://" + url + "?latency=0'>HTTP/2, 0 latency</a>] [<a href='http://" + url
-        + "?latency=0'>HTTP/1, 0 latency</a>]<br>" + "[<a href='https://" + url
-        + "?latency=30'>HTTP/2, 30ms latency</a>] [<a href='http://" + url
-        + "?latency=30'>HTTP/1, 30ms latency</a>]<br>" + "[<a href='https://" + url
-        + "?latency=200'>HTTP/2, 200ms latency</a>] [<a href='http://" + url
-        + "?latency=200'>HTTP/1, 200ms latency</a>]<br>" + "[<a href='https://" + url
-        + "?latency=1000'>HTTP/2, 1s latency</a>] [<a href='http://" + url
-        + "?latency=1000'>HTTP/1, 1s latency</a>]<br>";
+        + "<p>[<a href='https://" + url(Http2Server.PORT) + "?latency=0'>HTTP/2, 0 latency</a>] [<a href='http://"
+        + url(HttpServer.PORT) + "?latency=0'>HTTP/1, 0 latency</a>]<br>" + "[<a href='https://"
+        + url(Http2Server.PORT) + "?latency=30'>HTTP/2, 30ms latency</a>] [<a href='http://" + url(HttpServer.PORT)
+        + "?latency=30'>HTTP/1, 30ms latency</a>]<br>" + "[<a href='https://" + url(Http2Server.PORT)
+        + "?latency=200'>HTTP/2, 200ms latency</a>] [<a href='http://" + url(HttpServer.PORT)
+        + "?latency=200'>HTTP/1, 200ms latency</a>]<br>" + "[<a href='https://" + url(Http2Server.PORT)
+        + "?latency=1000'>HTTP/2, 1s latency</a>] [<a href='http://" + url(HttpServer.PORT)
+        + "?latency=1000'>HTTP/1, 1s latency</a>]<br>").getBytes();
+
+  private static String url(int port) {
+    return IP + ":" + port + "/http2";
   }
 
   public static byte[] body(int latency) {

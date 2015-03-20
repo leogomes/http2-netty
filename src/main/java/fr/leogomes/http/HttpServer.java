@@ -22,10 +22,8 @@ import io.netty.handler.codec.http.HttpResponseEncoder;
  */
 public class HttpServer {
 
-  static final String IP = System.getProperty("ip", "127.0.0.1");
-  static final int PORT = Integer.parseInt(System.getProperty("http-port", "80"));
+  public static final int PORT = Integer.parseInt(System.getProperty("http-port", "80"));
   static final int MAX_CONTENT_LENGTH = 1024 * 100;
-  
 
   private final EventLoopGroup bossGroup;
   private final EventLoopGroup workerGroup;
@@ -40,7 +38,7 @@ public class HttpServer {
     b.option(ChannelOption.SO_BACKLOG, 1024);
 
     b.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class)
-    // .handler(new LoggingHandler(LogLevel.INFO))
+        //.handler(new LoggingHandler(LogLevel.INFO))
         .childHandler(new ChannelInitializer<SocketChannel>() {
           @Override
           protected void initChannel(SocketChannel ch) throws Exception {
@@ -49,13 +47,11 @@ public class HttpServer {
             pipeline.addLast("httpResponseEncoder", new HttpResponseEncoder());
             pipeline.addLast("httpChunkAggregator", new HttpObjectAggregator(MAX_CONTENT_LENGTH));
             pipeline.addLast("httpRequestHandler", new Http1RequestHandler());
-
           }
         });
 
     Channel ch = b.bind(PORT).sync().channel();
-    System.err.println("Open your web browser and navigate to " + "http://127.0.0.1:" + PORT + '/');
-    return ch.closeFuture().sync();
+    return ch.closeFuture();
   }
 
   public void stop() {

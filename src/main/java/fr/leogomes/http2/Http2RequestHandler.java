@@ -7,6 +7,7 @@ import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 import static java.lang.Math.abs;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.math.NumberUtils.toInt;
+import fr.leogomes.Html;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandler.Sharable;
@@ -76,7 +77,7 @@ public class Http2RequestHandler extends SimpleChannelInboundHandler<FullHttpReq
     sendResponse(ctx, streamId, latency, response);
   }
 
-  private void sendResponse(ChannelHandlerContext ctx, String streamId, int latency, FullHttpResponse response) {
+  protected void sendResponse(ChannelHandlerContext ctx, String streamId, int latency, FullHttpResponse response) {
     setContentLength(response, response.content().readableBytes());
     setStreamId(response, streamId);
     ctx.executor().schedule(new Runnable() {
@@ -92,11 +93,11 @@ public class Http2RequestHandler extends SimpleChannelInboundHandler<FullHttpReq
     return abs((latency > 1000 ? 0 : latency));
   }
 
-  protected String streamId(FullHttpRequest request) {
+  private String streamId(FullHttpRequest request) {
     return request.headers().get(HttpUtil.ExtensionHeaderNames.STREAM_ID.text());
   }
 
-  protected void setStreamId(FullHttpResponse response, String streamId) {
+  private void setStreamId(FullHttpResponse response, String streamId) {
     response.headers().set(HttpUtil.ExtensionHeaderNames.STREAM_ID.text(), streamId);
   }
 

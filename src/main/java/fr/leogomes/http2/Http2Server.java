@@ -32,8 +32,7 @@ import javax.net.ssl.SSLException;
  */
 public class Http2Server {
 
-  static final String IP = System.getProperty("ip", "127.0.0.1");
-  static final int PORT = Integer.parseInt(System.getProperty("http2-port", "8443"));
+  public static final int PORT = Integer.parseInt(System.getProperty("http2-port", "8443"));
   static final int MAX_CONTENT_LENGTH = 1024 * 100;
 
   private final EventLoopGroup bossGroup;
@@ -49,7 +48,7 @@ public class Http2Server {
     ServerBootstrap b = new ServerBootstrap();
     b.option(ChannelOption.SO_BACKLOG, 1024);
     b.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class)
-    // .handler(new LoggingHandler(LogLevel.INFO))
+        //.handler(new LoggingHandler(LogLevel.INFO))
         .childHandler(new ChannelInitializer<SocketChannel>() {
           @Override
           protected void initChannel(SocketChannel ch) throws Exception {
@@ -58,7 +57,6 @@ public class Http2Server {
         });
 
     Channel ch = b.bind(PORT).sync().channel();
-    System.err.println("Open your HTTP/2-enabled web browser and navigate to " + "https://127.0.0.1:" + PORT + '/');
     return ch.closeFuture();
   }
 

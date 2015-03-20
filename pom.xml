@@ -71,7 +71,7 @@
 	
 	<profiles>
 		<profile>
-			<id>release-jar</id>
+			<id>release</id>
 			<build>
 				<plugins>
 					<plugin>

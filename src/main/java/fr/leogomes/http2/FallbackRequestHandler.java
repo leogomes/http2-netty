@@ -5,6 +5,7 @@ import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE;
 import static io.netty.handler.codec.http.HttpResponseStatus.CONTINUE;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
+import fr.leogomes.Html;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
@@ -23,8 +24,7 @@ public class FallbackRequestHandler extends SimpleChannelInboundHandler<HttpRequ
 
   private static final String response = "<html><body>"
       + "<h2>To view the example you need a browser that supports HTTP/2</h2>"
-      + "<p>Try with Chrome 40+ or Firefox 36+</p>"
-      + Html.FOOTER;
+      + "<p>Try with Chrome 40+ or Firefox 36+</p>" + Html.FOOTER;
 
   @Override
   protected void channelRead0(ChannelHandlerContext ctx, HttpRequest req) throws Exception {
@@ -39,7 +39,12 @@ public class FallbackRequestHandler extends SimpleChannelInboundHandler<HttpRequ
     response.headers().set(CONTENT_TYPE, "text/html; charset=UTF-8");
     response.headers().setInt(CONTENT_LENGTH, response.content().readableBytes());
 
-    ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
+    ctx.write(response).addListener(ChannelFutureListener.CLOSE);
+  }
+
+  @Override
+  public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
+    ctx.flush();
   }
 
   @Override
