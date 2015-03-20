@@ -32,6 +32,7 @@ import javax.net.ssl.SSLException;
  */
 public class Http2Server {
 
+  static final String IP = System.getProperty("ip", "127.0.0.1");
   static final int PORT = Integer.parseInt(System.getProperty("http2-port", "8443"));
   static final int MAX_CONTENT_LENGTH = 1024 * 100;
 

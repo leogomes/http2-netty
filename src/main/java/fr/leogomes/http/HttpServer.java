@@ -22,8 +22,10 @@ import io.netty.handler.codec.http.HttpResponseEncoder;
  */
 public class HttpServer {
 
+  static final String IP = System.getProperty("ip", "127.0.0.1");
   static final int PORT = Integer.parseInt(System.getProperty("http-port", "80"));
   static final int MAX_CONTENT_LENGTH = 1024 * 100;
+  
 
   private final EventLoopGroup bossGroup;
   private final EventLoopGroup workerGroup;
