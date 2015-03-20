@@ -32,7 +32,6 @@ import java.util.concurrent.TimeUnit;
  * 
  * @author Leonardo Gomes <http://leogomes.fr>
  */
-@Sharable
 public class Http2RequestHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
 
   static final String LATENCY = "latency";
@@ -40,20 +39,21 @@ public class Http2RequestHandler extends SimpleChannelInboundHandler<FullHttpReq
   static final String X = "x";
   static final String PATH = "/http2";
   static final AsciiString CONTENT_TYPE = new AsciiString("Content-Type");
+  static final byte[] dummy = "nothing".getBytes();
 
   @Override
   protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest request) throws Exception {
 
     QueryStringDecoder queryString = new QueryStringDecoder(request.uri());
-
+    String streamId = streamId(request);
+    
     // Check arguments: path must match and latency parameter must be present
     if (!PATH.equals(queryString.path()) || missing(queryString, LATENCY)) {
-      return;
+      sendDummy(ctx, streamId);
     }
 
-    String streamId = streamId(request);
     int latency = latency(queryString);
-
+    
     if (missing(queryString, X) && missing(queryString, Y)) {
       handlePage(ctx, streamId, latency);
     } else {
@@ -86,7 +86,7 @@ public class Http2RequestHandler extends SimpleChannelInboundHandler<FullHttpReq
       }
     }, latency, TimeUnit.MILLISECONDS);
   }
-
+  
   private int latency(QueryStringDecoder queryString) {
     int latency = toInt(queryString.parameters().get(LATENCY).get(0), 0);
     // Make sure that latency is not too big
@@ -104,6 +104,12 @@ public class Http2RequestHandler extends SimpleChannelInboundHandler<FullHttpReq
   private boolean missing(QueryStringDecoder query, String string) {
     List<String> values = query.parameters().get(string);
     return (query.parameters() == null || values == null || values.size() == 0 || EMPTY.equals(values.get(0)));
+  }
+  
+  private void sendDummy(ChannelHandlerContext ctx, String streamId) {
+    DefaultFullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, OK, wrappedBuffer(dummy));
+    response.headers().set(CONTENT_TYPE, "text/plain");
+    sendResponse(ctx, streamId, 0, response);
   }
 
   @Override

@@ -13,6 +13,8 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpResponseEncoder;
+import io.netty.handler.logging.LogLevel;
+import io.netty.handler.logging.LoggingHandler;
 
 /**
  * Demonstrates a http server using Netty to display a bunch of images, simulate
@@ -38,7 +40,7 @@ public class HttpServer {
     b.option(ChannelOption.SO_BACKLOG, 1024);
 
     b.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class)
-        //.handler(new LoggingHandler(LogLevel.INFO))
+        .handler(new LoggingHandler(LogLevel.INFO))
         .childHandler(new ChannelInitializer<SocketChannel>() {
           @Override
           protected void initChannel(SocketChannel ch) throws Exception {

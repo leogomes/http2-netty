@@ -20,15 +20,15 @@ public class Html {
       .getBytes();
 
   public static final byte[] HEADER = ("<html><head lang=\"en\"><title>Netty HTTP/2 Example</title>"
-        + "<style>body {background:#DDD;}</style></head>" + "<body>A grid of 200 tiled images is shown below. Compare:"
-        + "<p>[<a href='https://" + url(Http2Server.PORT) + "?latency=0'>HTTP/2, 0 latency</a>] [<a href='http://"
-        + url(HttpServer.PORT) + "?latency=0'>HTTP/1, 0 latency</a>]<br>" + "[<a href='https://"
-        + url(Http2Server.PORT) + "?latency=30'>HTTP/2, 30ms latency</a>] [<a href='http://" + url(HttpServer.PORT)
-        + "?latency=30'>HTTP/1, 30ms latency</a>]<br>" + "[<a href='https://" + url(Http2Server.PORT)
-        + "?latency=200'>HTTP/2, 200ms latency</a>] [<a href='http://" + url(HttpServer.PORT)
-        + "?latency=200'>HTTP/1, 200ms latency</a>]<br>" + "[<a href='https://" + url(Http2Server.PORT)
-        + "?latency=1000'>HTTP/2, 1s latency</a>] [<a href='http://" + url(HttpServer.PORT)
-        + "?latency=1000'>HTTP/1, 1s latency</a>]<br>").getBytes();
+      + "<style>body {background:#DDD;}</style><link rel=\"shortcut icon\" href=\"about:blank\"></head>" + "<body>A grid of 200 tiled images is shown below. Compare:"
+      + "<p>[<a href='https://" + url(Http2Server.PORT) + "?latency=0'>HTTP/2, 0 latency</a>] [<a href='http://"
+      + url(HttpServer.PORT) + "?latency=0'>HTTP/1, 0 latency</a>]<br>" + "[<a href='https://" + url(Http2Server.PORT)
+      + "?latency=30'>HTTP/2, 30ms latency</a>] [<a href='http://" + url(HttpServer.PORT)
+      + "?latency=30'>HTTP/1, 30ms latency</a>]<br>" + "[<a href='https://" + url(Http2Server.PORT)
+      + "?latency=200'>HTTP/2, 200ms latency</a>] [<a href='http://" + url(HttpServer.PORT)
+      + "?latency=200'>HTTP/1, 200ms latency</a>]<br>" + "[<a href='https://" + url(Http2Server.PORT)
+      + "?latency=1000'>HTTP/2, 1s latency</a>] [<a href='http://" + url(HttpServer.PORT) + "?latency=1000'>HTTP/1, 1s latency</a>]<br>")
+      .getBytes();
 
   private static String url(int port) {
     return IP + ":" + port + "/http2";

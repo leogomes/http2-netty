@@ -9,9 +9,9 @@ public class Launcher {
     Http2Server http2 = new Http2Server();
     HttpServer http = new HttpServer();
     try {
-      http.start();
+      http2.start();
       System.err.println("Open your web browser and navigate to " + "http://" + Html.IP + ":" + HttpServer.PORT + '/');
-      http2.start().sync();
+      http.start().sync();
     } catch (Exception e) {
       e.printStackTrace();
     } finally {
