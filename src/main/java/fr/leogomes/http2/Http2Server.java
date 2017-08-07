@@ -14,6 +14,10 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.codec.http2.DefaultHttp2Connection;
+import io.netty.handler.codec.http2.HttpToHttp2ConnectionHandlerBuilder;
+import io.netty.handler.codec.http2.InboundHttp2ToHttpAdapter;
+import io.netty.handler.codec.http2.InboundHttp2ToHttpAdapterBuilder;
 import io.netty.handler.ssl.ApplicationProtocolConfig;
 import io.netty.handler.ssl.ApplicationProtocolConfig.Protocol;
 import io.netty.handler.ssl.ApplicationProtocolConfig.SelectedListenerFailureBehavior;
@@ -52,7 +56,18 @@ public class Http2Server {
 				.childHandler(new ChannelInitializer<SocketChannel>() {
 					@Override
 					protected void initChannel(SocketChannel ch) throws Exception {
-						ch.pipeline().addLast(sslCtx.newHandler(ch.alloc()), new Http2OrHttpHandler());
+						//ch.pipeline().addLast(sslCtx.newHandler(ch.alloc()), new Http2OrHttpHandler());
+						DefaultHttp2Connection connection = new DefaultHttp2Connection(true);
+				        InboundHttp2ToHttpAdapter listener = new InboundHttp2ToHttpAdapterBuilder(connection)
+				                .propagateSettings(true).validateHttpHeaders(false)
+				                .maxContentLength(MAX_CONTENT_LENGTH).build();
+
+				        ch.pipeline().addLast(new HttpToHttp2ConnectionHandlerBuilder()
+				                .frameListener(listener)
+				                // .frameLogger(TilesHttp2ToHttpHandler.logger)
+				                .connection(connection).build());
+
+				        ch.pipeline().addLast(new Http2RequestHandler());
 					}
 				});
 
