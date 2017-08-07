@@ -11,7 +11,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
-import io.netty.handler.codec.http.HttpHeaderUtil;
+import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.HttpHeaderValues;
 import fr.leogomes.http2.Http2RequestHandler;
 
@@ -26,8 +26,8 @@ public class Http1RequestHandler extends Http2RequestHandler {
 
   @Override
   protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest request) throws Exception {
-    isKeepAlive = HttpHeaderUtil.isKeepAlive(request);
-    if (HttpHeaderUtil.is100ContinueExpected(request)) {
+    isKeepAlive = HttpUtil.isKeepAlive(request);
+    if (HttpUtil.is100ContinueExpected(request)) {
       ctx.write(new DefaultFullHttpResponse(HTTP_1_1, CONTINUE));
     }
     super.channelRead0(ctx, request);
@@ -35,7 +35,7 @@ public class Http1RequestHandler extends Http2RequestHandler {
 
   @Override
   protected void sendResponse(ChannelHandlerContext ctx, String streamId, int latency, FullHttpResponse response) {
-    HttpHeaderUtil.setContentLength(response, response.content().readableBytes());
+    HttpUtil.setContentLength(response, response.content().readableBytes());
     ctx.executor().schedule(new Runnable() {
       public void run() {
         if (isKeepAlive) {

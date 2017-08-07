@@ -1,16 +1,14 @@
 package fr.leogomes.http2;
 
-import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.http.HttpObjectAggregator;
+import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.codec.http2.DefaultHttp2Connection;
-import io.netty.handler.codec.http2.DefaultHttp2FrameReader;
-import io.netty.handler.codec.http2.DefaultHttp2FrameWriter;
-import io.netty.handler.codec.http2.Http2ConnectionHandler;
-import io.netty.handler.codec.http2.Http2OrHttpChooser;
-import io.netty.handler.codec.http2.HttpToHttp2ConnectionHandler;
+import io.netty.handler.codec.http2.HttpToHttp2ConnectionHandlerBuilder;
 import io.netty.handler.codec.http2.InboundHttp2ToHttpAdapter;
-
-import javax.net.ssl.SSLEngine;
+import io.netty.handler.codec.http2.InboundHttp2ToHttpAdapterBuilder;
+import io.netty.handler.ssl.ApplicationProtocolNames;
+import io.netty.handler.ssl.ApplicationProtocolNegotiationHandler;
 
 /**
  * Used during protocol negotiation, the main function of this handler is to
@@ -18,47 +16,46 @@ import javax.net.ssl.SSLEngine;
  * 
  * @author Leonardo Gomes <http://leogomes.fr>
  */
-public class Http2OrHttpHandler extends Http2OrHttpChooser {
+public class Http2OrHttpHandler extends ApplicationProtocolNegotiationHandler {
 
-  protected Http2OrHttpHandler(int maxHttpContentLength) {
-    super(maxHttpContentLength);
-  }
+	private static final int MAX_CONTENT_LENGTH = 1024 * 100;
 
-  @Override
-  protected SelectedProtocol getProtocol(SSLEngine engine) {
-    String[] protocol = engine.getSession().getProtocol().split(":");
-    if (protocol != null && protocol.length > 1) {
-      SelectedProtocol selectedProtocol = SelectedProtocol.protocol(protocol[1]);
-      //System.err.println("Selected Protocol is " + selectedProtocol);
-      return selectedProtocol;
+    protected Http2OrHttpHandler() {
+        super(ApplicationProtocolNames.HTTP_1_1);
     }
-    return SelectedProtocol.UNKNOWN;
-  }
 
-  @Override
-  protected void addHttp2Handlers(ChannelHandlerContext ctx) {
-    DefaultHttp2Connection connection = new DefaultHttp2Connection(true);
-    DefaultHttp2FrameWriter writer = new DefaultHttp2FrameWriter();
-    DefaultHttp2FrameReader reader = new DefaultHttp2FrameReader();
-    InboundHttp2ToHttpAdapter listener = new InboundHttp2ToHttpAdapter.Builder(connection).propagateSettings(true)
-        .validateHttpHeaders(false).maxContentLength(1024 * 100).build();
+    @Override
+    protected void configurePipeline(ChannelHandlerContext ctx, String protocol) throws Exception {
+        if (ApplicationProtocolNames.HTTP_2.equals(protocol)) {
+            configureHttp2(ctx);
+            return;
+        }
 
-    ctx.pipeline().addLast("httpToHttp2", new HttpToHttp2ConnectionHandler(connection,
-    // Loggers can be activated for debugging purposes
-    // new Http2InboundFrameLogger(reader, TilesHttp2ToHttpHandler.logger),
-    // new Http2OutboundFrameLogger(writer, TilesHttp2ToHttpHandler.logger)
-        reader, writer, listener));
-    ctx.pipeline().addLast("fullHttpRequestHandler", new Http2RequestHandler());
-  }
+        if (ApplicationProtocolNames.HTTP_1_1.equals(protocol)) {
+            configureHttp1(ctx);
+            return;
+        }
 
-  @Override
-  protected ChannelHandler createHttp1RequestHandler() {
-    return new FallbackRequestHandler();
-  }
+        throw new IllegalStateException("unknown protocol: " + protocol);
+    }
 
-  @Override
-  protected Http2ConnectionHandler createHttp2RequestHandler() {
-    return null; // NOOP
-  }
+    private static void configureHttp2(ChannelHandlerContext ctx) {
+        DefaultHttp2Connection connection = new DefaultHttp2Connection(true);
+        InboundHttp2ToHttpAdapter listener = new InboundHttp2ToHttpAdapterBuilder(connection)
+                .propagateSettings(true).validateHttpHeaders(false)
+                .maxContentLength(MAX_CONTENT_LENGTH).build();
 
+        ctx.pipeline().addLast(new HttpToHttp2ConnectionHandlerBuilder()
+                .frameListener(listener)
+                // .frameLogger(TilesHttp2ToHttpHandler.logger)
+                .connection(connection).build());
+
+        ctx.pipeline().addLast(new Http2RequestHandler());
+    }
+
+    private static void configureHttp1(ChannelHandlerContext ctx) throws Exception {
+        ctx.pipeline().addLast(new HttpServerCodec(),
+                               new HttpObjectAggregator(MAX_CONTENT_LENGTH),
+                               new FallbackRequestHandler());
+    }
 }

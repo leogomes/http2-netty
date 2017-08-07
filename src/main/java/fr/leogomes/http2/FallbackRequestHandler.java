@@ -12,7 +12,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpResponse;
-import io.netty.handler.codec.http.HttpHeaderUtil;
+import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.HttpRequest;
 
 /**
@@ -28,7 +28,7 @@ public class FallbackRequestHandler extends SimpleChannelInboundHandler<HttpRequ
 
   @Override
   protected void channelRead0(ChannelHandlerContext ctx, HttpRequest req) throws Exception {
-    if (HttpHeaderUtil.is100ContinueExpected(req)) {
+    if (HttpUtil.is100ContinueExpected(req)) {
       ctx.write(new DefaultFullHttpResponse(HTTP_1_1, CONTINUE));
     }
 

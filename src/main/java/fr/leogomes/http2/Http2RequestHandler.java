@@ -1,28 +1,28 @@
 package fr.leogomes.http2;
 
-import static io.netty.buffer.Unpooled.wrappedBuffer;
-import static io.netty.handler.codec.http.HttpHeaderUtil.setContentLength;
-import static io.netty.handler.codec.http.HttpResponseStatus.OK;
-import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
-import static java.lang.Math.abs;
-import static org.apache.commons.lang3.StringUtils.EMPTY;
-import static org.apache.commons.lang3.math.NumberUtils.toInt;
 import fr.leogomes.Html;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.handler.codec.AsciiString;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.QueryStringDecoder;
-import io.netty.handler.codec.http2.HttpUtil;
+import io.netty.handler.codec.http2.HttpConversionUtil;
 import io.netty.handler.codec.http2.InboundHttp2ToHttpAdapter;
+import io.netty.util.AsciiString;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+
+import static io.netty.buffer.Unpooled.wrappedBuffer;
+import static io.netty.handler.codec.http.HttpResponseStatus.OK;
+import static io.netty.handler.codec.http.HttpUtil.setContentLength;
+import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
+import static java.lang.Math.abs;
+import static org.apache.commons.lang3.StringUtils.EMPTY;
+import static org.apache.commons.lang3.math.NumberUtils.toInt;
 
 /**
  * Handles all the requests for data. It receives a {@link FullHttpRequest},
@@ -95,11 +95,11 @@ public class Http2RequestHandler extends SimpleChannelInboundHandler<FullHttpReq
   }
 
   private String streamId(FullHttpRequest request) {
-    return request.headers().get(HttpUtil.ExtensionHeaderNames.STREAM_ID.text());
+    return request.headers().get(HttpConversionUtil.ExtensionHeaderNames.STREAM_ID.text());
   }
 
   private void setStreamId(FullHttpResponse response, String streamId) {
-    response.headers().set(HttpUtil.ExtensionHeaderNames.STREAM_ID.text(), streamId);
+    response.headers().set(HttpConversionUtil.ExtensionHeaderNames.STREAM_ID.text(), streamId);
   }
 
   private boolean missing(QueryStringDecoder query, String string) {
